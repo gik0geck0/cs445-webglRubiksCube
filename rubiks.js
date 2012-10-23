@@ -31,7 +31,7 @@ function glSetup() {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	
 	//var modelArray = make2DVertexPositionArray();
-	var modelArray = [0, 0, .1, 0, 0, .1];
+	var modelArray = [0, 0, 1, 0, 0, 1];
 	
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(modelArray), gl.STATIC_DRAW);
 	
