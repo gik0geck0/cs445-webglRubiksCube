@@ -21,6 +21,7 @@ function doStuff(){
 	
 	// Create a Renderer, Camera, and Scene
 	var renderer = new THREE.WebGLRenderer();
+	renderer.antialias = true;
 	var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	var scene = new THREE.Scene();
 	
@@ -38,28 +39,27 @@ function doStuff(){
 	$container.append(renderer.domElement);
 	
 	// Set up sphere vars
-	var radius = 50,
-	    segments = 16,
-	    rings = 16;
+	var height = 50,
+		width = 50,
+		depth = 50;
 	    
 	// Create sphere material
-	var sphereMaterial = new THREE.MeshLambertMaterial(
+	var cubeMaterial = new THREE.MeshLambertMaterial(
 		{color:0xCC00FF}
 	);
 	
 	// Create the mesh geometry
-	var sphere = new THREE.Mesh(
+	var cube = new THREE.Mesh(
 	
-	  new THREE.SphereGeometry(
-	    radius,
-	    segments,
-	    rings),
+	  new THREE.CubeGeometry(
+	    height,
+	    width,
+	    depth),
 	
-	  sphereMaterial);
-	  sphere.overdraw = true;
+	  cubeMaterial);
 	
 	// Add sphere to scene
-	scene.add(sphere);
+	scene.add(cube);
 	
 	// create a point light
 	var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -90,6 +90,8 @@ function doStuff(){
 			pointLight.position.x = 100 * Math.sin(frame/10.0);
 			pointLight.position.y = 100 * Math.sin(frame/10.0);
 			pointLight.position.z = 100 * Math.cos(frame/10.0);
+			cube.rotation.y = Math.sin(frame/10.0);
+			cube.rotation.x = Math.cos(frame/10.0);
 			frame += 1;
 			renderer.render(scene, camera);
 		})();
