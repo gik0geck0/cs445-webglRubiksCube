@@ -72,6 +72,28 @@ function doStuff(){
 	scene.add(pointLight);
 	
 	renderer.render(scene, camera);
+	var frame = 0;
+	while (true){
+		(function animloop(){
+		  requestAnimFrame(animloop);
+			sphere.position.x = 10 * Math.sin(frame);
+			sphere.position.y = 10 * Math.sin(frame);
+			frame += 1;
+			renderer.render(scene, camera);
+		})();
+	}
 }
+
+// shim layer with setTimeout fallback
+    window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
 
 $(document).ready(doStuff);
