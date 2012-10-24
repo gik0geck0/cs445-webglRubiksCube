@@ -44,7 +44,7 @@ function doStuff(){
 	    
 	// Create sphere material
 	var sphereMaterial = new THREE.MeshLambertMaterial(
-		{color:0xCC0000}
+		{color:0xCC00FF}
 	);
 	
 	// Create the mesh geometry
@@ -56,6 +56,7 @@ function doStuff(){
 	    rings),
 	
 	  sphereMaterial);
+	  sphere.overdraw = true;
 	
 	// Add sphere to scene
 	scene.add(sphere);
@@ -64,24 +65,34 @@ function doStuff(){
 	var pointLight = new THREE.PointLight(0xFFFFFF);
 	
 	// set its position
-	pointLight.position.x = 10;
-	pointLight.position.y = 50;
-	pointLight.position.z = 130;
+	pointLight.position.x = 0;
+	pointLight.position.y = 0;
+	pointLight.position.z = 0;
 	
 	// add to the scene
 	scene.add(pointLight);
 	
+	// Create an ambient light
+	var ambient = new THREE.AmbientLight(0x111111);
+	
+	// Add to scene
+	scene.add(ambient);
+	
+	// add directional light source
+	var directionalLight = new THREE.DirectionalLight(0xffffff);
+	directionalLight.position.set(1, 1, 1).normalize();
+	scene.add(directionalLight);
+	
 	renderer.render(scene, camera);
 	var frame = 0;
-	while (true){
 		(function animloop(){
 		  requestAnimFrame(animloop);
-			sphere.position.x = 10 * Math.sin(frame);
-			sphere.position.y = 10 * Math.sin(frame);
+			pointLight.position.x = 100 * Math.sin(frame/10.0);
+			pointLight.position.y = 100 * Math.sin(frame/10.0);
+			pointLight.position.z = 100 * Math.cos(frame/10.0);
 			frame += 1;
 			renderer.render(scene, camera);
 		})();
-	}
 }
 
 // shim layer with setTimeout fallback
