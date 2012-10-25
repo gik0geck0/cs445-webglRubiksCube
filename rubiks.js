@@ -29,7 +29,7 @@ function doStuff(){
 	scene.add(camera);
 	
 	// Camera starts at origin, so move it back
-	camera.position.z = 300;
+	camera.position.z = 10;
 	
 	// Go Go Gadget Renderer~!
 	renderer.setSize(WIDTH, HEIGHT);
@@ -39,9 +39,9 @@ function doStuff(){
 	$container.append(renderer.domElement);
 	
 	// Set up sphere vars
-	var height = 50,
-		width = 50,
-		depth = 50;
+	var height = 1,
+		width = 1,
+		depth = 1;
 	    
 	// Create sphere material
 	var cubeMaterial = new THREE.MeshLambertMaterial(
@@ -53,24 +53,30 @@ function doStuff(){
 	rubiks.rotateX = function(rotation){for(var i = 0; i < 3; ++i){
 										for(var j = 0; j < 3; ++j){
 										for(var k = 0; k < 3; ++k){
-											this.cubes[i][j][k].rotation.x = rotation;
+											var rot = new THREE.Matrix4();
+											rot.rotateByAxis(new THREE.Vector3(1,0,0), rotation);
+											this.cubes[i][j][k].applyMatrix(rot);
 										}
 										}
-										};
+										};};
 	rubiks.rotateY = function(rotation){for(var i = 0; i < 3; ++i){
 										for(var j = 0; j < 3; ++j){
 										for(var k = 0; k < 3; ++k){
-											this.cubes[i][j][k].rotation.y = rotation;
+											var rot = new THREE.Matrix4();
+											rot.rotateByAxis(new THREE.Vector3(0,1,0), rotation);
+											this.cubes[i][j][k].applyMatrix(rot);
 										}
 										}
-										};
+										};};
 	rubiks.rotateZ = function(rotation){for(var i = 0; i < 3; ++i){
 										for(var j = 0; j < 3; ++j){
 										for(var k = 0; k < 3; ++k){
-											this.cubes[i][j][k].rotation.z = rotation;
+											var rot = new THREE.Matrix4();
+											rot.rotateByAxis(new THREE.Vector3(0,0,1), rotation);
+											this.cubes[i][j][k].applyMatrix(rot);
 										}
 										}
-										};
+										};};
 	
 	for(var i = 0; i < 3; ++i){
 		rubiks.cubes[i] = [];
@@ -84,20 +90,24 @@ function doStuff(){
 							new THREE.MeshLambertMaterial({color:0x0000FF}),
 							new THREE.MeshLambertMaterial({color:0xFF7700}),
 							new THREE.MeshLambertMaterial({color:0xFFFFFF})];
+				var sides = [true, true, true, true, true, true];
 			
 				// Create the mesh geometry
-				var cube = new THREE.Mesh(
-				
+				var cube = new THREE.Mesh(				
 				  new THREE.CubeGeometry(
 					height,
 					width,
 					depth,
-					2,
-					2,
-					2,
-					mats),
+					1,
+					1,
+					1,
+					mats,
+					sides));
 				
-				  cubeMaterial);
+				// Move the cube appropriately
+				cube.position.x = (i-1)*1.1;
+				cube.position.y = (j-1)*1.1;
+				cube.position.z = (k-1)*1.1;
 				
 				// Add cube to scene
 				scene.add(cube);
@@ -137,8 +147,9 @@ function doStuff(){
 			pointLight.position.x = 100 * Math.sin(frame/10.0);
 			pointLight.position.y = 100 * Math.sin(frame/10.0);
 			pointLight.position.z = 100 * Math.cos(frame/10.0);
-			rubiks.rotationX(frame / 10.0);
-			rubiks.rotationZ(frame / 10.0);
+			rubiks.rotateX(0.01);
+			rubiks.rotateY(0.01);
+			rubiks.rotateZ(0.01);
 			frame += 1;
 			renderer.render(scene, camera);
 		})();
