@@ -48,18 +48,25 @@ function doStuff(){
 		{color:0xCC00FF}
 	);
 	
-	// Create the mesh geometry
-	var cube = new THREE.Mesh(
+	var rubiks;
 	
-	  new THREE.CubeGeometry(
-	    height,
-	    width,
-	    depth),
+	for(var i = 0; i < 27; ++i){
+		// Create the cube material array
+		var mats = [new THREE.Material(),
 	
-	  cubeMaterial);
-	
-	// Add sphere to scene
-	scene.add(cube);
+		// Create the mesh geometry
+		var cube = new THREE.Mesh(
+		
+		  new THREE.CubeGeometry(
+			height,
+			width,
+			depth),
+		
+		  cubeMaterial);
+		
+		// Add sphere to scene
+		scene.add(cube);
+	}
 	
 	// create a point light
 	var pointLight = new THREE.PointLight(0x00FF00);
