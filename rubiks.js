@@ -48,24 +48,64 @@ function doStuff(){
 		{color:0xCC00FF}
 	);
 	
-	var rubiks;
+	var rubiks = new Object();
+	rubiks.cubes = [];
+	rubiks.rotateX = function(rotation){for(var i = 0; i < 3; ++i){
+										for(var j = 0; j < 3; ++j){
+										for(var k = 0; k < 3; ++k){
+											this.cubes[i][j][k].rotation.x = rotation;
+										}
+										}
+										};
+	rubiks.rotateY = function(rotation){for(var i = 0; i < 3; ++i){
+										for(var j = 0; j < 3; ++j){
+										for(var k = 0; k < 3; ++k){
+											this.cubes[i][j][k].rotation.y = rotation;
+										}
+										}
+										};
+	rubiks.rotateZ = function(rotation){for(var i = 0; i < 3; ++i){
+										for(var j = 0; j < 3; ++j){
+										for(var k = 0; k < 3; ++k){
+											this.cubes[i][j][k].rotation.z = rotation;
+										}
+										}
+										};
 	
-	for(var i = 0; i < 27; ++i){
-		// Create the cube material array
-		var mats = [new THREE.Material(),
-	
-		// Create the mesh geometry
-		var cube = new THREE.Mesh(
-		
-		  new THREE.CubeGeometry(
-			height,
-			width,
-			depth),
-		
-		  cubeMaterial);
-		
-		// Add sphere to scene
-		scene.add(cube);
+	for(var i = 0; i < 3; ++i){
+		rubiks.cubes[i] = [];
+		for(var j = 0; j < 3; ++j){
+			rubiks.cubes[i][j] = [];
+			for(var k = 0; k < 3; ++k){
+				// Create the cube material array
+				var mats = [new THREE.MeshLambertMaterial({color:0xFF0000}),
+							new THREE.MeshLambertMaterial({color:0xFFFF00}),
+							new THREE.MeshLambertMaterial({color:0x00FF00}),
+							new THREE.MeshLambertMaterial({color:0x0000FF}),
+							new THREE.MeshLambertMaterial({color:0xFF7700}),
+							new THREE.MeshLambertMaterial({color:0xFFFFFF})];
+			
+				// Create the mesh geometry
+				var cube = new THREE.Mesh(
+				
+				  new THREE.CubeGeometry(
+					height,
+					width,
+					depth,
+					2,
+					2,
+					2,
+					mats),
+				
+				  cubeMaterial);
+				
+				// Add cube to scene
+				scene.add(cube);
+				
+				// Add cube to rubiks
+				rubiks.cubes[i][j][k] = cube;
+			}
+		}
 	}
 	
 	// create a point light
@@ -97,8 +137,8 @@ function doStuff(){
 			pointLight.position.x = 100 * Math.sin(frame/10.0);
 			pointLight.position.y = 100 * Math.sin(frame/10.0);
 			pointLight.position.z = 100 * Math.cos(frame/10.0);
-			cube.rotation.y = Math.sin(frame/10.0);
-			cube.rotation.x = Math.cos(frame/10.0);
+			rubiks.rotationX(frame / 10.0);
+			rubiks.rotationZ(frame / 10.0);
 			frame += 1;
 			renderer.render(scene, camera);
 		})();
