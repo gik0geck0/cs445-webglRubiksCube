@@ -62,7 +62,7 @@ function doStuff(){
 	scene.add(cube);
 	
 	// create a point light
-	var pointLight = new THREE.PointLight(0xFFFFFF);
+	var pointLight = new THREE.PointLight(0x00FF00);
 	
 	// set its position
 	pointLight.position.x = 0;
