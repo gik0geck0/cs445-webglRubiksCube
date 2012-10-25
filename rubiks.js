@@ -42,11 +42,6 @@ function doStuff(){
 	var height = 1,
 		width = 1,
 		depth = 1;
-	    
-	// Create sphere material
-	var cubeMaterial = new THREE.MeshLambertMaterial(
-		{color:0xCC00FF}
-	);
 	
 	var rubiks = new Object();
 	rubiks.cubes = [];
@@ -84,12 +79,12 @@ function doStuff(){
 			rubiks.cubes[i][j] = [];
 			for(var k = 0; k < 3; ++k){
 				// Create the cube material array
-				var mats = [new THREE.MeshLambertMaterial({color:0xFF0000}),
-							new THREE.MeshLambertMaterial({color:0xFFFF00}),
-							new THREE.MeshLambertMaterial({color:0x00FF00}),
-							new THREE.MeshLambertMaterial({color:0x0000FF}),
-							new THREE.MeshLambertMaterial({color:0xFF7700}),
-							new THREE.MeshLambertMaterial({color:0xFFFFFF})];
+				var mats = [new THREE.MeshBasicMaterial((i>1?{color:0xFF0000}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((i<1?{color:0xFFFF00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((j>1?{color:0x00FF00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((j<1?{color:0x0000FF}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((k>1?{color:0xFF7F00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((k<1?{color:0xFFFFFF}:{color:0x000000}))];
 				var sides = [true, true, true, true, true, true];
 			
 				// Create the mesh geometry
@@ -102,7 +97,8 @@ function doStuff(){
 					1,
 					1,
 					mats,
-					sides));
+					sides),
+				  new THREE.MeshFaceMaterial());
 				
 				// Move the cube appropriately
 				cube.position.x = (i-1)*1.1;
@@ -119,37 +115,32 @@ function doStuff(){
 	}
 	
 	// create a point light
-	var pointLight = new THREE.PointLight(0x00FF00);
+	var pointLight = new THREE.PointLight(0xFFFFFF);
 	
 	// set its position
-	pointLight.position.x = 0;
-	pointLight.position.y = 0;
-	pointLight.position.z = 0;
+	pointLight.position.x = 5;
+	pointLight.position.y = 5;
+	pointLight.position.z = 5;
 	
 	// add to the scene
 	scene.add(pointLight);
 	
 	// Create an ambient light
-	var ambient = new THREE.AmbientLight(0x111111);
+	var ambient = new THREE.AmbientLight(0x444444);
 	
 	// Add to scene
 	scene.add(ambient);
-	
-	// add directional light source
-	var directionalLight = new THREE.DirectionalLight(0xffffff);
-	directionalLight.position.set(1, 1, 1).normalize();
-	scene.add(directionalLight);
 	
 	renderer.render(scene, camera);
 	var frame = 0;
 		(function animloop(){
 		  requestAnimFrame(animloop);
-			pointLight.position.x = 100 * Math.sin(frame/10.0);
-			pointLight.position.y = 100 * Math.sin(frame/10.0);
-			pointLight.position.z = 100 * Math.cos(frame/10.0);
-			rubiks.rotateX(0.01);
-			rubiks.rotateY(0.01);
-			rubiks.rotateZ(0.01);
+			//pointLight.position.x = 100 * Math.sin(frame/10.0);
+			//pointLight.position.y = 100 * Math.sin(frame/10.0);
+			//pointLight.position.z = 100 * Math.cos(frame/10.0);
+			rubiks.rotateX(.1 * Math.cos(frame/10.0));
+			rubiks.rotateY(0.03);
+			//rubiks.rotateZ(0.05);
 			frame += 1;
 			renderer.render(scene, camera);
 		})();
