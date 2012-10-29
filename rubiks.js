@@ -50,9 +50,9 @@ function doStuff(){
 	scene.add(camera);
 	
 	// Camera starts at origin, so move it back
-	camera.position.z = 7;
-	camera.position.x = 7;
-	camera.position.y = 7;
+	camera.position.z = 5;
+	camera.position.x = 5;
+	camera.position.y = 5;
 	camera.lookAt(new THREE.Vector3(0,0,0));
 	
 	// Go Go Gadget Renderer~!
@@ -211,6 +211,121 @@ function doStuff(){
 			renderer.render(scene, camera);
 		})();
 }
+
+Rubiks = function(size) {
+	// Protect against forgetting new
+    if ( !(this instanceof Rubiks) ){
+		console.log("Rubiks constructor called without new");
+		return new Rubiks(1);
+	}
+	// Will become a 3-dimensional array of cubes
+	// TODO: Could be 1-dimensional?
+	this.cubes = [];
+	// Expects argument of type THREE.Matrix4
+	this.transformByMatrix = function(tMatrix){
+		for(var i = 0; i < 3; ++i){
+			for(var j = 0; j < 3; ++j){
+				for(var k = 0; k < 3; ++k){
+					this.cubes[i][j][k].applyMatrix(tMatrix);
+				}
+			}
+		}
+	}
+	// Expects argument of type THREE.Scene
+	this.addCubesToScene(scene){
+		for(var i = 0; i < 3; ++i){
+			for(var j = 0; j < 3; ++j){
+				for(var k = 0; k < 3; ++k){
+					scene.add(this.cubes[i][j][k]);
+				}
+			}
+		}
+	}
+	// Return a 9-element array of cubes matching the dimension pattern
+	// Value of null on a pattern dimension implies freedom
+	this.subSet(x, y, z){
+		var array = [];
+		var i = 0;
+		var currCube;
+		for(var i = 0; i < 3; ++i){
+			for(var j = 0; j < 3; ++j){
+				for(var k = 0; k < 3; ++k){
+					currCube = this.cubes[i][j][k]
+					if(currCube
+				}
+			}
+		}
+	}
+		
+	// Initialize materials and add cubes to array
+	for(var i = 0; i < 3; ++i){
+		rubiks.cubes[i] = [];
+		for(var j = 0; j < 3; ++j){
+			rubiks.cubes[i][j] = [];
+			for(var k = 0; k < 3; ++k){
+				// Create the cube material array
+				// Blacks out "interior" faces
+				var mats = [new THREE.MeshBasicMaterial((i>1?{color:0xFF0000}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((i<1?{color:0xFFFF00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((j>1?{color:0x00FF00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((j<1?{color:0x0000FF}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((k>1?{color:0xFF7F00}:{color:0x000000})),
+							new THREE.MeshBasicMaterial((k<1?{color:0xFFFFFF}:{color:0x000000}))];
+				// Draw all faces
+				var sides = [true, true, true, true, true, true];
+			
+				// Create the mesh geometry
+				var cube = new SubCube(1, mats, sides);
+				
+				// Move the cube appropriately
+				cube.translate((i-1)*1.1, (j-1)*1.1, (k-1)*1.1);
+				
+				// Prepare the cube's position tracking variable
+				delete cube.position;
+				cube.position = new THREE.Vector3(i-1, j-1, k-1);
+				
+				// Add cube to rubiks
+				rubiks.cubes[i][j][k] = cube;
+			}
+		}
+	}
+};
+
+SubCube = function(size, mats, sides){
+	// Protect against forgetting new
+    if ( !(this instanceof SubCube) ){
+		console.log("SubCube constructor called without new; null returned!");
+		return null;
+	}
+	// Track our position in the cube, accumulating rotations
+	this.pos = new THREE.Vector3(0,0,0);
+	
+	// Populate our mesh
+	this.mesh = new THREE.Mesh(				
+				  new THREE.CubeGeometry(
+					size,
+					size,
+					size,
+					1,
+					1,
+					1,
+					mats,
+					sides),
+				  new THREE.MeshFaceMaterial());
+				  
+	// Translate convenience function
+	this.translate = function(dx, dy, dz){
+		this.mesh.position.x += dx;
+		this.mesh.position.y += dy;
+		this.mesh.position.z += dz;
+	}
+	
+	// Apply an arbitrary transformation matrix
+	this.applyMatrix = function(matrix){
+		this.mesh.applyMatrix(matrix);
+		this.pos = matrix * this.pos;
+	}
+};
 
 // shim layer with setTimeout fallback
     window.requestAnimFrame = (function(){
