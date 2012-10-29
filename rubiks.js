@@ -128,15 +128,21 @@ function doStuff(){
 		var rot = new THREE.Matrix4();
 		rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
 		camera.applyMatrix(rot);
-		delete rot;
+		// Randomly select a 9-set of cubes
+		var dim = Math.floor(Math.random()*3);
+		var val = Math.floor(Math.random()*3) - 1;
+		var args = [null, null, null];
+		args[dim] = val;
+		var subset = rubiks.subSet(args[0], args[1], args[2]);
 		// Subface rotation
-		rot = new THREE.Matrix4();
-		rot.rotateByAxis(new THREE.Vector3(1, 0, 0), 0.01);
-		var subset = rubiks.subSet(null, 0, null);
-		for(var i = 0; i < 9; ++i){
-		  subset[i].applyMatrix(rot);
+		args = [0, 0, 0];
+		args[dim] = 1;
+		var crot = new THREE.Matrix4();
+		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), -1 * Math.PI / 2.0);
+		//console.log("Received " + subset.length + " cubes");
+		for(var i = 0; i < subset.length; ++i){
+		  subset[i].applyMatrix(crot);
 		}
-		delete rot;
 		// Render!
 		renderer.render(scene, camera);
 	  }
@@ -171,10 +177,13 @@ Rubiks = function(size) {
 		var a = 0;
 		var currCube;
 		for(var i = 0; i < 27; ++i){
-			currCube = this.cubes[i]
-			if( ( x == null ? true : currCube.pos.x == x) &&
-				( y == null ? true : currCube.pos.y == y) &&
-				( y == null ? true : currCube.pos.z == z) ){
+			currCube = this.cubes[i];
+			var test = (x === null) ? true : (currCube.pos.x == x);
+			var foo = (y === null) ? true : (currCube.pos.y == y);
+			var bar = (z === null) ? true : (currCube.pos.z == z);
+			if( ( (x === null) ? true : (currCube.pos.x == x) ) &&
+				( (y === null) ? true : (currCube.pos.y == y) ) &&
+				( (z === null) ? true : (currCube.pos.z == z) ) ){
 				array[a] = currCube;
 				++a;
 			}
@@ -207,8 +216,8 @@ Rubiks = function(size) {
 		cube.translate(x*1.1, y*1.1, z*1.1);
 		
 		// Prepare the cube's position tracking variable
-		delete cube.position;
-		cube.position = new THREE.Vector3(x, y, z);
+		delete cube.pos;
+		cube.pos = new THREE.Vector4(x, y, z, 1);
 		
 		// Add cube to rubiks
 		this.cubes[i] = cube;
@@ -222,7 +231,7 @@ SubCube = function(size, mats, sides){
 		return null;
 	}
 	// Track our position in the cube, accumulating rotations
-	this.pos = new THREE.Vector3(0,0,0);
+	this.pos = new THREE.Vector4(0,0,0,1);
 	
 	// Populate our mesh
 	this.mesh = new THREE.Mesh(				
@@ -247,7 +256,10 @@ SubCube = function(size, mats, sides){
 	// Apply an arbitrary transformation matrix
 	this.applyMatrix = function(matrix){
 		this.mesh.applyMatrix(matrix);
-		this.pos = matrix * this.pos;
+		console.log(this.pos);
+		console.log("^ - v ");
+		this.pos = matrix.multiplyVector4(this.pos);
+		console.log(this.pos);
 	}
 };
 
