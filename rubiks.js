@@ -91,81 +91,15 @@ function doStuff(){
 	},
 	false);
 	
-	// Set up sphere vars
+	// Set up cube vars
 	var height = 1,
 		width = 1,
 		depth = 1;
 	
-	var rubiks = new Object();
-	rubiks.cubes = [];
-	rubiks.rotateX = function(rotation){for(var i = 0; i < 3; ++i){
-										for(var j = 0; j < 3; ++j){
-										for(var k = 0; k < 3; ++k){
-											var rot = new THREE.Matrix4();
-											rot.rotateByAxis(new THREE.Vector3(1,0,0), rotation);
-											this.cubes[i][j][k].applyMatrix(rot);
-										}
-										}
-										};};
-	rubiks.rotateY = function(rotation){for(var i = 0; i < 3; ++i){
-										for(var j = 0; j < 3; ++j){
-										for(var k = 0; k < 3; ++k){
-											var rot = new THREE.Matrix4();
-											rot.rotateByAxis(new THREE.Vector3(0,1,0), rotation);
-											this.cubes[i][j][k].applyMatrix(rot);
-										}
-										}
-										};};
-	rubiks.rotateZ = function(rotation){for(var i = 0; i < 3; ++i){
-										for(var j = 0; j < 3; ++j){
-										for(var k = 0; k < 3; ++k){
-											var rot = new THREE.Matrix4();
-											rot.rotateByAxis(new THREE.Vector3(0,0,1), rotation);
-											this.cubes[i][j][k].applyMatrix(rot);
-										}
-										}
-										};};
-	
-	for(var i = 0; i < 3; ++i){
-		rubiks.cubes[i] = [];
-		for(var j = 0; j < 3; ++j){
-			rubiks.cubes[i][j] = [];
-			for(var k = 0; k < 3; ++k){
-				// Create the cube material array
-				var mats = [new THREE.MeshBasicMaterial((i>1?{color:0xFF0000}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((i<1?{color:0xFFFF00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((j>1?{color:0x00FF00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((j<1?{color:0x0000FF}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((k>1?{color:0xFF7F00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((k<1?{color:0xFFFFFF}:{color:0x000000}))];
-				var sides = [true, true, true, true, true, true];
-			
-				// Create the mesh geometry
-				var cube = new THREE.Mesh(				
-				  new THREE.CubeGeometry(
-					height,
-					width,
-					depth,
-					1,
-					1,
-					1,
-					mats,
-					sides),
-				  new THREE.MeshFaceMaterial());
-				
-				// Move the cube appropriately
-				cube.position.x = (i-1)*1.1;
-				cube.position.y = (j-1)*1.1;
-				cube.position.z = (k-1)*1.1;
-				
-				// Add cube to scene
-				scene.add(cube);
-				
-				// Add cube to rubiks
-				rubiks.cubes[i][j][k] = cube;
-			}
-		}
-	}
+	// Construct Rubiks object
+	var rubiks = new Rubiks(height, width, depth);
+	// Add all subcubes to the scene
+	rubiks.addCubesToScene(scene);
 	
 	// create a point light
 	var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -188,28 +122,25 @@ function doStuff(){
 	var subSet = rubiks.cubes[0];
 	
 	renderer.render(scene, camera);
-	var frame = 0;
-		(function animloop(){
-		  requestAnimFrame(animloop);
-			//pointLight.position.x = 100 * Math.sin(frame/10.0);
-			//pointLight.position.y = 100 * Math.sin(frame/10.0);
-			//pointLight.position.z = 100 * Math.cos(frame/10.0);
-			//rubiks.rotateX(.1 * Math.cos(frame/10.0));
-			//rubiks.rotateY(0.03);
-			//rubiks.rotateZ(0.05);
-			var rot = new THREE.Matrix4();
-			rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
-			camera.applyMatrix(rot);
-			rot = new THREE.Matrix4();
-			rot.rotateByAxis(new THREE.Vector3(1,0,0), 0.01);
-			for(var j=0; j < 3; ++j){
-				for(var k=0; k < 3; ++k){
-					subSet[j][k].applyMatrix(rot);
-				}
-			}
-			frame += 1;
-			renderer.render(scene, camera);
-		})();
+	(function animloop(){
+	  requestAnimFrame(animloop);
+	    // Camera flyaround
+		var rot = new THREE.Matrix4();
+		rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
+		camera.applyMatrix(rot);
+		delete rot;
+		// Subface rotation
+		rot = new THREE.Matrix4();
+		rot.rotateByAxis(new THREE.Vector3(1, 0, 0), 0.01);
+		var subset = rubiks.subSet(null, 0, null);
+		for(var i = 0; i < 9; ++i){
+		  subset[i].applyMatrix(rot);
+		}
+		delete rot;
+		// Render!
+		renderer.render(scene, camera);
+	  }
+	)();
 }
 
 Rubiks = function(size) {
@@ -223,71 +154,64 @@ Rubiks = function(size) {
 	this.cubes = [];
 	// Expects argument of type THREE.Matrix4
 	this.transformByMatrix = function(tMatrix){
-		for(var i = 0; i < 3; ++i){
-			for(var j = 0; j < 3; ++j){
-				for(var k = 0; k < 3; ++k){
-					this.cubes[i][j][k].applyMatrix(tMatrix);
-				}
-			}
+		for(var i = 0; i < 27; ++i){
+			this.cubes[i].applyMatrix(tMatrix);
 		}
 	}
 	// Expects argument of type THREE.Scene
-	this.addCubesToScene(scene){
-		for(var i = 0; i < 3; ++i){
-			for(var j = 0; j < 3; ++j){
-				for(var k = 0; k < 3; ++k){
-					scene.add(this.cubes[i][j][k]);
-				}
-			}
+	this.addCubesToScene = function(scene){
+		for(var i = 0; i < 27; ++i){
+			scene.add(this.cubes[i].mesh);
 		}
 	}
 	// Return a 9-element array of cubes matching the dimension pattern
 	// Value of null on a pattern dimension implies freedom
-	this.subSet(x, y, z){
+	this.subSet = function(x, y, z){
 		var array = [];
-		var i = 0;
+		var a = 0;
 		var currCube;
-		for(var i = 0; i < 3; ++i){
-			for(var j = 0; j < 3; ++j){
-				for(var k = 0; k < 3; ++k){
-					currCube = this.cubes[i][j][k]
-					if(currCube
-				}
+		for(var i = 0; i < 27; ++i){
+			currCube = this.cubes[i]
+			if( ( x == null ? true : currCube.pos.x == x) &&
+				( y == null ? true : currCube.pos.y == y) &&
+				( y == null ? true : currCube.pos.z == z) ){
+				array[a] = currCube;
+				++a;
 			}
 		}
+		return array;
 	}
 		
 	// Initialize materials and add cubes to array
-	for(var i = 0; i < 3; ++i){
-		rubiks.cubes[i] = [];
-		for(var j = 0; j < 3; ++j){
-			rubiks.cubes[i][j] = [];
-			for(var k = 0; k < 3; ++k){
-				// Create the cube material array
-				// Blacks out "interior" faces
-				var mats = [new THREE.MeshBasicMaterial((i>1?{color:0xFF0000}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((i<1?{color:0xFFFF00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((j>1?{color:0x00FF00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((j<1?{color:0x0000FF}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((k>1?{color:0xFF7F00}:{color:0x000000})),
-							new THREE.MeshBasicMaterial((k<1?{color:0xFFFFFF}:{color:0x000000}))];
-				// Draw all faces
-				var sides = [true, true, true, true, true, true];
-			
-				// Create the mesh geometry
-				var cube = new SubCube(1, mats, sides);
-				
-				// Move the cube appropriately
-				cube.translate((i-1)*1.1, (j-1)*1.1, (k-1)*1.1);
-				
-				// Prepare the cube's position tracking variable
-				delete cube.position;
-				cube.position = new THREE.Vector3(i-1, j-1, k-1);
-				
-				// Add cube to rubiks
-				rubiks.cubes[i][j][k] = cube;
-			}
-		}
+	for(var i = 0; i < 27; ++i){
+		// Calculate iterated position coordinates
+		var x = Math.floor((i / 9) - 1);
+		var y = Math.floor(((i % 9) / 3) - 1);
+		var z = Math.floor(((i % 9) % 3) - 1);
+		
+		// Create the cube material array
+		// Blacks out "interior" faces
+		var mats = [new THREE.MeshBasicMaterial((x>0?{color:0xFF0000}:{color:0x000000})),
+					new THREE.MeshBasicMaterial((x<0?{color:0xFFFF00}:{color:0x000000})),
+					new THREE.MeshBasicMaterial((y>0?{color:0x00FF00}:{color:0x000000})),
+					new THREE.MeshBasicMaterial((y<0?{color:0x0000FF}:{color:0x000000})),
+					new THREE.MeshBasicMaterial((z>0?{color:0xFF7F00}:{color:0x000000})),
+					new THREE.MeshBasicMaterial((z<0?{color:0xFFFFFF}:{color:0x000000}))];
+		// Draw all faces
+		var sides = [true, true, true, true, true, true];
+	
+		// Create the mesh geometry
+		var cube = new SubCube(1, mats, sides);
+		
+		// Move the cube appropriately
+		cube.translate(x*1.1, y*1.1, z*1.1);
+		
+		// Prepare the cube's position tracking variable
+		delete cube.position;
+		cube.position = new THREE.Vector3(x, y, z);
+		
+		// Add cube to rubiks
+		this.cubes[i] = cube;
 	}
 };
 
