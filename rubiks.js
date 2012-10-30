@@ -120,6 +120,18 @@ function doStuff(){
 	
 	// Test with subset of cubes
 	var subSet = rubiks.cubes[0];
+	var fracMovement = 30; // Out of ... 30?
+	// Randomly select a 9-set of cubes
+	var dim = Math.floor(Math.random()*3);
+	var val = Math.floor(Math.random()*3) - 1;
+	var args = [null, null, null];
+	args[dim] = val;
+	var subset = rubiks.subSet(args[0], args[1], args[2]);
+	// Subface rotation
+	args = [0, 0, 0];
+	args[dim] = 1;
+	fracMovement = 0;
+	var subset = [];
 	
 	renderer.render(scene, camera);
 	(function animloop(){
@@ -128,21 +140,30 @@ function doStuff(){
 		var rot = new THREE.Matrix4();
 		rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
 		camera.applyMatrix(rot);
-		// Randomly select a 9-set of cubes
-		var dim = Math.floor(Math.random()*3);
-		var val = Math.floor(Math.random()*3) - 1;
-		var args = [null, null, null];
-		args[dim] = val;
-		var subset = rubiks.subSet(args[0], args[1], args[2]);
-		// Subface rotation
-		args = [0, 0, 0];
-		args[dim] = 1;
+		if(fracMovement >= 30){
+			// Snap cubes to square position
+			for(var i = 0; i < subset.length; ++i){
+			  subset[i].snapPos();
+			}
+			// Randomly select a 9-set of cubes
+			dim = Math.floor(Math.random()*3);
+			val = Math.floor(Math.random()*3) - 1;
+			args = [null, null, null];
+			args[dim] = val;
+			subset = rubiks.subSet(args[0], args[1], args[2]);
+			// Subface rotation
+			args = [0, 0, 0];
+			args[dim] = 1;
+			fracMovement = 0;
+		}
 		var crot = new THREE.Matrix4();
-		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), -1 * Math.PI / 2.0);
+		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), Math.PI / 60.0);
 		//console.log("Received " + subset.length + " cubes");
 		for(var i = 0; i < subset.length; ++i){
 		  subset[i].applyMatrix(crot);
 		}
+		// Update fraction of movement variable
+		fracMovement++;
 		// Render!
 		renderer.render(scene, camera);
 	  }
@@ -256,10 +277,14 @@ SubCube = function(size, mats, sides){
 	// Apply an arbitrary transformation matrix
 	this.applyMatrix = function(matrix){
 		this.mesh.applyMatrix(matrix);
-		console.log(this.pos);
-		console.log("^ - v ");
 		this.pos = matrix.multiplyVector4(this.pos);
-		console.log(this.pos);
+		//this.snapPos();
+	}
+	
+	this.snapPos = function(){
+		this.pos.x = Math.round(this.pos.x);
+		this.pos.y = Math.round(this.pos.y);
+		this.pos.z = Math.round(this.pos.z);
 	}
 };
 
