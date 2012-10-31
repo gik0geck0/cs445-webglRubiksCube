@@ -1,2 +1,2 @@
-https://developer.mozilla.org/en-US/docs/WebGL
-
+WebGL Tutorials:	https://developer.mozilla.org/en-US/docs/WebGL
+Vector/Matrix lib:	http://sylvester.jcoglan.com/#download

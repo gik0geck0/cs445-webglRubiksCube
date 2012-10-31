@@ -1,0 +1,11 @@
+#attach {
+}
+
+body {
+	background-image: url('escheresque.png');
+	background-repeat: repeat;
+}
+
+button {
+	background-color: #7CFC00;
+}
