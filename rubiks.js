@@ -1,69 +1,53 @@
 var mouseDown = false;
 
-function doStuff(){
+function Init(){
 	/*
 	http://www.aerotwist.com/tutorials/getting-started-with-three-js/
 	*/
 	
-	// Grab the container canvas
-	var canvas = document.getElementById("drawingArea");
+	// Grab the container canvas with jQuery
 	var $container = $('#attach');
 	
-	// Add mouse events
-	// $container.mousedown( function() {
-		// mouseDown = true;
-		// console.log("Mouse down");
-	// });
-	// $container.mouseup( function() {
-		// if(mouseDown){
-			// console.log("Valid click!");
-			// mouseDown = false;
-			// return;
-		// }
-		// console.log("Mouse up, no MD");
-	// });
-	// $container.mousemove( function(event) {
-		// if(mouseDown){
-			// console.log("Active motion at" + event.pageX + " " + event.pageY);
-		// }
-	// });
-	
 	// Set viewport size
-	//var WIDTH = canvas.getAttribute("WIDTH");
-	//var HEIGHT = canvas.getAttribute("HEIGHT");
-	var WIDTH = 400;
-	var HEIGHT = 300;
+	var WIDTH = 640;
+	var HEIGHT = 480;
 	
 	// Set camera attributes
-	var VIEW_ANGLE = 45;
-	var ASPECT = WIDTH/HEIGHT;
-	var NEAR = 0.1;
-	var FAR = 10000;
+	var VIEW_ANGLE = 45; // Vertical FoV
+	var ASPECT = WIDTH/HEIGHT; 
+	var NEAR = 0.1; // Distance to near clipping plane from camera
+	var FAR = 10000; // Distance to far clipping plane from camera
+	// Since we have a very simple scene, the clipping distances aren't terribly important
+	// If we had more stuff to render, we would want to minimize the clipping boundaries
 	
 	// Create a Renderer, Camera, and Scene
+	// Note the calls into the THREE library for these objects
 	var renderer = new THREE.WebGLRenderer();
-	renderer.antialias = true;
 	var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	var scene = new THREE.Scene();
+	// A renderer is the interface to the OpenGL drivers; it handles the brunt of rendering
+	// A camera defines where in space the viewport looks. It starts
+		// at the origin, looking along the positive(?) z-axis, oriented with (0, 1, 0) as 'up'
+	// A scene holds a set of meshes to be rendered, as well as any lighting elements
 	
 	// Add camera to scene
-	scene.add(camera);
-	
+	scene.add(camera);	
 	// Camera starts at origin, so move it back
 	camera.position.z = 5;
 	camera.position.x = 5;
 	camera.position.y = 5;
-	camera.lookAt(new THREE.Vector3(0,0,0));
+	camera.lookAt(new THREE.Vector3(0,0,0)); // Assumes positive y-axis as 'up'
 	
 	// Go Go Gadget Renderer~!
-	renderer.setSize(WIDTH, HEIGHT);
+	renderer.setSize(WIDTH, HEIGHT); // Tells the renderer what size of image buffer to allocate
 	
 	// Attach renderer-supplied DOM element
-	// wut?
 	$container.append(renderer.domElement);
+	// Add a small black border so we can see where the canvas ends
 	$canvas = renderer.domElement
 	$canvas.style.border ='1px solid black';
-	// Add canvas mouse events
+	
+	// Add canvas mouse event stubs
 	$canvas.addEventListener( 
 	'mousedown',
 	function() {
@@ -91,33 +75,29 @@ function doStuff(){
 	},
 	false);
 	
-	// Set up cube vars
-	var height = 1,
-		width = 1,
-		depth = 1;
-	
 	// Construct Rubiks object
-	var rubiks = new Rubiks(height, width, depth);
+	var rubiks = new Rubiks(1, 1, 1); // x, y, z dimensions of the cube in world coords
 	// Add all subcubes to the scene
 	rubiks.addCubesToScene(scene);
 	
+	// THE LIGHTS DON'T ACTUALLY DO ANYTHING	
 	// create a point light
-	var pointLight = new THREE.PointLight(0xFFFFFF);
-	
+	var pointLight = new THREE.PointLight(0xFFFFFF); // Pure white
 	// set its position
 	pointLight.position.x = 5;
 	pointLight.position.y = 5;
-	pointLight.position.z = 5;
-	
+	pointLight.position.z = 5;	
 	// add to the scene
 	scene.add(pointLight);
-	
+	// THE LIGHTS DON'T ACTUALLY DO ANYTHING
 	// Create an ambient light
-	var ambient = new THREE.AmbientLight(0x444444);
-	
+	var ambient = new THREE.AmbientLight(0x444444); // Soft gray	
 	// Add to scene
 	scene.add(ambient);
+	// Because of the chosen material for the cubes, the renderer defaults to an ambient white light
 	
+	
+	// THIS CAN BE REMOVED
 	// Test with subset of cubes
 	var subSet = rubiks.cubes[0];
 	var fracMovement = 30; // Out of ... 30?
@@ -133,41 +113,46 @@ function doStuff(){
 	fracMovement = 0;
 	var subset = [];
 	
-	renderer.render(scene, camera);
+	// get a random animation
+	var Anim = getNewRandomAnimation(rubiks, 1000);
+	
+	renderer.render(scene, camera); // You need to make at least one render call before the animation loop
+	
+	/*
+		This is where the meat of things happens. For each frame, a call is made to
+		the browser's provided requestAnimFrame function. This function will cause the
+		browser to pause our simulation until a frame is ready to be rendered (usually
+		at a fairly constant 60fps). This call is made by recursively passing the animLoop function.
+		After requesting the animation frame, the animLoop function is given the go-ahead
+		by the browser to do its drama; here, we rotate the camera, update the animation
+		under consideration (or generate a new one), and finally ask the renderer to update
+		our view of the world. The renderer will automatically copy its render buffer
+		to the canvas object is generated; the only limit to how fast it does this
+		is the wait time enforced by requestAnimFrame!
+	 */
 	(function animloop(){
-	  requestAnimFrame(animloop);
+		requestAnimFrame(animloop);
+		
 	    // Camera flyaround
+		// Note that we re-allocate every iteration -- that's bad!
 		var rot = new THREE.Matrix4();
 		rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
 		camera.applyMatrix(rot);
-		if(fracMovement >= 30){
-			// Snap cubes to square position
-			for(var i = 0; i < subset.length; ++i){
-			  subset[i].snapPos();
-			}
-			// Randomly select a 9-set of cubes
-			dim = Math.floor(Math.random()*3);
-			val = Math.floor(Math.random()*3) - 1;
-			args = [null, null, null];
-			args[dim] = val;
-			subset = rubiks.subSet(args[0], args[1], args[2]);
-			// Subface rotation
-			args = [0, 0, 0];
-			args[dim] = 1;
-			fracMovement = 0;
+		
+		// Update the animation, or make a new one if it's complete
+		if(Anim.complete){
+			Anim = getNewRandomAnimation(rubiks, 1000);
 		}
-		var crot = new THREE.Matrix4();
-		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), Math.PI / 60.0);
-		//console.log("Received " + subset.length + " cubes");
-		for(var i = 0; i < subset.length; ++i){
-		  subset[i].applyMatrix(crot);
+		else{
+			Anim.update();
 		}
-		// Update fraction of movement variable
-		fracMovement++;
+		
 		// Render!
 		renderer.render(scene, camera);
 	  }
 	)();
+	// Note the syntax on the function here -- we create the function object,
+	// then immediately call it from its own definition. Pretty slick!
 }
 
 Rubiks = function(size) {
@@ -176,42 +161,11 @@ Rubiks = function(size) {
 		console.log("Rubiks constructor called without new");
 		return new Rubiks(1);
 	}
-	// Will become a 3-dimensional array of cubes
-	// TODO: Could be 1-dimensional?
-	this.cubes = [];
-	// Expects argument of type THREE.Matrix4
-	this.transformByMatrix = function(tMatrix){
-		for(var i = 0; i < 27; ++i){
-			this.cubes[i].applyMatrix(tMatrix);
-		}
-	}
-	// Expects argument of type THREE.Scene
-	this.addCubesToScene = function(scene){
-		for(var i = 0; i < 27; ++i){
-			scene.add(this.cubes[i].mesh);
-		}
-	}
-	// Return a 9-element array of cubes matching the dimension pattern
-	// Value of null on a pattern dimension implies freedom
-	this.subSet = function(x, y, z){
-		var array = [];
-		var a = 0;
-		var currCube;
-		for(var i = 0; i < 27; ++i){
-			currCube = this.cubes[i];
-			var test = (x === null) ? true : (currCube.pos.x == x);
-			var foo = (y === null) ? true : (currCube.pos.y == y);
-			var bar = (z === null) ? true : (currCube.pos.z == z);
-			if( ( (x === null) ? true : (currCube.pos.x == x) ) &&
-				( (y === null) ? true : (currCube.pos.y == y) ) &&
-				( (z === null) ? true : (currCube.pos.z == z) ) ){
-				array[a] = currCube;
-				++a;
-			}
-		}
-		return array;
-	}
 		
+	/* MEMBER INITIALIZATION */
+		
+	// Will become a 1-dimensional array of cubes
+	this.cubes = [];
 	// Initialize materials and add cubes to array
 	for(var i = 0; i < 27; ++i){
 		// Calculate iterated position coordinates
@@ -243,6 +197,44 @@ Rubiks = function(size) {
 		// Add cube to rubiks
 		this.cubes[i] = cube;
 	}
+	
+	/* FUNCTION DEFINITIONS */
+	
+	// Expects argument of type THREE.Matrix4
+	this.transformByMatrix = function(tMatrix){
+		for(var i = 0; i < 27; ++i){
+			this.cubes[i].applyMatrix(tMatrix);
+		}
+	}
+	
+	// Expects argument of type THREE.Scene
+	this.addCubesToScene = function(scene){
+		for(var i = 0; i < 27; ++i){
+			scene.add(this.cubes[i].mesh);
+		}
+	}
+	
+	// Return a 9-element array of cubes matching the dimension pattern
+	// Value of null on a pattern dimension implies freedom
+	// Ex: [null, 1, null] returns all cubes with y-coordinate of value 1
+	this.subSet = function(x, y, z){
+		var array = [];
+		var a = 0;
+		var currCube;
+		for(var i = 0; i < 27; ++i){
+			currCube = this.cubes[i];
+			var test = (x === null) ? true : (currCube.pos.x == x);
+			var foo = (y === null) ? true : (currCube.pos.y == y);
+			var bar = (z === null) ? true : (currCube.pos.z == z);
+			if( ( (x === null) ? true : (currCube.pos.x == x) ) &&
+				( (y === null) ? true : (currCube.pos.y == y) ) &&
+				( (z === null) ? true : (currCube.pos.z == z) ) ){
+				array[a] = currCube;
+				++a;
+			}
+		}
+		return array;
+	}
 };
 
 SubCube = function(size, mats, sides){
@@ -251,6 +243,9 @@ SubCube = function(size, mats, sides){
 		console.log("SubCube constructor called without new; null returned!");
 		return null;
 	}
+	
+	/* MEMBER INITIALIZATION */
+	
 	// Track our position in the cube, accumulating rotations
 	this.pos = new THREE.Vector4(0,0,0,1);
 	
@@ -267,6 +262,9 @@ SubCube = function(size, mats, sides){
 					sides),
 				  new THREE.MeshFaceMaterial());
 				  
+				  
+	/* FUNCTION DEFINITIONS */
+	
 	// Translate convenience function
 	this.translate = function(dx, dy, dz){
 		this.mesh.position.x += dx;
@@ -281,6 +279,7 @@ SubCube = function(size, mats, sides){
 		//this.snapPos();
 	}
 	
+	// Necessary to avoid rounding errors with repeated transformations
 	this.snapPos = function(){
 		this.pos.x = Math.round(this.pos.x);
 		this.pos.y = Math.round(this.pos.y);
@@ -288,16 +287,102 @@ SubCube = function(size, mats, sides){
 	}
 };
 
-// shim layer with setTimeout fallback
-    window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame       || 
-              window.webkitRequestAnimationFrame || 
-              window.mozRequestAnimationFrame    || 
-              window.oRequestAnimationFrame      || 
-              window.msRequestAnimationFrame     || 
-              function( callback ){
-                window.setTimeout(callback, 1000 / 60);
-              };
-    })();
+Animation = function(duration, interpolatorActor){
+	this.startTime = new Date().getTime(); // Get the current millis time
+	this.duration = duration; // Duration in milliseconds
+	this.progress = 0; // Current millis elapsed
+	this.interpolatorActor = interpolatorActor; // Interpolator function, see note at end of prototype
+	this.complete = false;
+	
+	// Cause the interpolatorActor to update its logic to the current position of progress
+	this.update = function(){
+		// Return immediately if complete
+		if(this.complete){
+			return;
+		}
+		progress = (new Date().getTime() - this.startTime); // Update progress ticker
+		interpolatorActor(progress/duration); // Call interpolator logic
+		// Check for completeness
+		if(progress >= duration){
+			this.complete = true;
+		}
+	}
+	
+	/*
+	 * The interpolator function signature should look like this:
+	 
+	  		void interp( progressFrac )
+	 
+	 * where progressFrac is bounded [0,1].
+	 *
+	 * The interpolator function should take advantage of the fact
+	 * that javascript supports closures and fully encapsulate any
+	 * logic and data necessary to perform its action(s).
+	 *
+	 * Should the interpolator ever receive progressFrac >= 1, it
+	 * should finalize the animation into a stable position and
+	 * call any other finalization logic (e.g., position snapping).
+	 */
+}
+	
+function getNewRandomAnimation(rubiks, duration){
+	// Randomly select a 9-set of cubes
+	dim = Math.floor(Math.random()*3); // Choose a dimension to lock
+	val = Math.floor(Math.random()*3) - 1; // Choose a value to lock it to from (-1, 0, 1)
+	args = [null, null, null]; // Assume all dimensions are free
+	args[dim] = val; // Lock one dimension to the chosen value
+	subset = rubiks.subSet(args[0], args[1], args[2]); // Request the subset
+	// Subface rotation
+	args = [0, 0, 0]; // Start with 0-vector
+	args[dim] = 1; // Set the locked dimension to 1, forming the vector normal the subset (this is our axis of rotation)
+	var transformState = new THREE.Matrix4(); // Allocate a variable to track the total animation state
+	// Generate a closure to act as the interpolator.
+	// This is kinda weird to get your head around (Matt should understand from Principles), so feel
+	// free to ask me what's going if you don't understand.
+	var stepper = function(prog){
+		prog = (prog > 1 ? 1 : prog); // Lock progress to [0, 1]
+		// Get the inverse of the transformation matrix to undo the transform accumulated so far
+		var transformUndo = new THREE.Matrix4();
+		transformUndo.getInverse(transformState);
+		// Undo all transforms in the set
+		for(var i = 0; i < subset.length; ++i){
+			subset[i].applyMatrix(transformUndo); 
+		}
+		// allocate a new temporary matrix
+		var crot = new THREE.Matrix4(); 
+		// We want to scale a rotation of 90 degrees (pi/2 rads) around an arbitrary axis over the duration
+		var progScale = (prog >= 1 ? 1 : prog);
+		//var progScale = (prog >= 1 ? 1 : Math.pow(prog, 6));
+		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), progScale * (Math.PI / 2));
+		// Apply transform to all in set
+		for(var i = 0; i < subset.length; ++i){
+			subset[i].applyMatrix(crot); 
+		}
+		// Animation is done, so we need a bit of cleanup
+		if(prog >= 1){
+			// Lock all subcubes to unitary locations
+			for(var i = 0; i < subset.length; ++i){
+				subset[i].snapPos(); 
+			}
+		}
+		// Save the latest transform
+		transformState = crot; 
+	}
+	var Anim = new Animation(duration, stepper);
+	return Anim;
+}
 
-$(document).ready(doStuff);
+// requestAnimFrame shim in case users use a
+// not-quite-up-to-date modern browser
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame       || 
+		  window.webkitRequestAnimationFrame || 
+		  window.mozRequestAnimationFrame    || 
+		  window.oRequestAnimationFrame      || 
+		  window.msRequestAnimationFrame     || 
+		  function( callback ){
+			window.setTimeout(callback, 1000 / 60);
+		  };
+})();
+
+$(document).ready(Init); // Use jQuery to call our init function after the page is done loading so we have a valid DOM Tree
