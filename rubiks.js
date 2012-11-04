@@ -88,7 +88,7 @@ function Init(){
 			var rot = new THREE.Matrix4();
 			rot.rotateByAxis(new THREE.Vector3(-rotY,-rotX,rotY), 0.03);
 			camera.applyMatrix(rot);
-
+//test comment
 			/*console.log("Active motion at" + event.layerX + " " + event.layerY + 
 				"\nprevX: " + prevX + " prevY: " + prevY +
 				"\nrotX: " + rotX + " rotY: " + rotY);
