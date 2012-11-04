@@ -75,11 +75,35 @@ function Init(){
 		console.log("Mouse up, no MD");
 	},
 	false);
+	var prevX = 100;
+	var prevY = 100;
 	$canvas.addEventListener(
 	'mousemove',
 	function(event) {
 		if(mouseDown){
-			console.log("Active motion at" + event.layerX + " " + event.layerY);
+			
+			//var rotX = 0;
+			//var rotY = 0;
+			//if(event.layerX-prevX > 0) {
+			//	rotX = 1;
+			//} else if(event.layerX-prevX < -0) {
+			//	rotX = -1;
+			//}
+			//if(event.layerY-prevY > 0) {
+			//	rotY = 1;
+			//} else if(event.layerY-prevY < -0) {
+			//	rotY = -1;
+			//}
+			//var rot = new THREE.Matrix4();
+			//rot.rotateByAxis(new THREE.Vector3(-rotY,-rotX,rotY), 0.03);
+			//camera.applyMatrix(rot);
+//test comment
+			console.log("Active motion at" + event.layerX + " " + event.layerY + 
+				"\nprevX: " + prevX + " prevY: " + prevY +
+				"\nrotX: " + rotX + " rotY: " + rotY);
+			
+			//prevX = event.layerX;
+			//prevY = event.layerY;
 		}
 	},
 	false);
