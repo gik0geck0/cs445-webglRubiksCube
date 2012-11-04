@@ -1,13 +1,22 @@
 var mouseDown = false;
-
 function Init(){
 	/*
 	http://www.aerotwist.com/tutorials/getting-started-with-three-js/
 	*/
 	
+	var duration = 100;
+	var Anim = null;
+	var rubiks = null;
+	var isRandomizing = false;
+	var randomNum = 0;
 	// Grab the container canvas with jQuery
 	var $container = $('#attach');
 	
+	var $shuffleButton = $('#shuffle');
+	$shuffleButton.click(function() {
+		console.log("Shuffle was clicked");
+		randomNum = 20;
+	});
 	// Set viewport size
 	var WIDTH = 640;
 	var HEIGHT = 480;
@@ -22,7 +31,7 @@ function Init(){
 	
 	// Create a Renderer, Camera, and Scene
 	// Note the calls into the THREE library for these objects
-	var renderer = new THREE.WebGLRenderer();
+	var renderer = new THREE.WebGLRenderer({antialias: true});
 	var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
 	var scene = new THREE.Scene();
 	// A renderer is the interface to the OpenGL drivers; it handles the brunt of rendering
@@ -117,19 +126,44 @@ function Init(){
 				}
 				camera.applyMatrix(rot);
 			}
-//test comment
-			/*console.log("Active motion at" + event.layerX + " " + event.layerY + 
+			//var rotX = 0;
+			//var rotY = 0;
+			//if(event.layerX-prevX > 0) {
+			//	rotX = 1;
+			//} else if(event.layerX-prevX < -0) {
+			//	rotX = -1;
+			//}
+			//if(event.layerY-prevY > 0) {
+			//	rotY = 1;
+			//} else if(event.layerY-prevY < -0) {
+			//	rotY = -1;
+			//}
+			//var rot = new THREE.Matrix4();
+			//rot.rotateByAxis(new THREE.Vector3(-rotY,-rotX,rotY), 0.03);
+			//camera.applyMatrix(rot);
+			//test comment
+			console.log("Active motion at" + event.layerX + " " + event.layerY + 
 				"\nprevX: " + prevX + " prevY: " + prevY +
 				"\nrotX: " + rotX + " rotY: " + rotY);
-			*/
+			
 			prevX = event.layerX;
 			prevY = event.layerY;
 		}
 	},
 	false);
+	document.addEventListener(
+		'keypress',
+		function(evt) {
+			var keyCode = evt.which;
+			if (Anim == null) {
+				Anim = handleKeyPress(rubiks, duration, evt.shiftKey, keyCode);
+			}
+		}
+		, false);
+
 	
 	// Construct Rubiks object
-	var rubiks = new Rubiks(1, 1, 1); // x, y, z dimensions of the cube in world coords
+	rubiks = new Rubiks(1, 1, 1); // x, y, z dimensions of the cube in world coords
 	// Add all subcubes to the scene
 	rubiks.addCubesToScene(scene);
 	
@@ -167,8 +201,7 @@ function Init(){
 	var subset = [];
 	
 	// get a random animation
-	var Anim = getNewRandomAnimation(rubiks, 1000);
-	
+	//var Anim = getNewRandomAnimation(rubiks, duration);
 	renderer.render(scene, camera); // You need to make at least one render call before the animation loop
 	
 	/*
@@ -188,11 +221,21 @@ function Init(){
 		
 	    // Camera flyaround
 		// Note that we re-allocate every iteration -- that's bad!
-		
+		var rot = new THREE.Matrix4();
+		rot.rotateByAxis(new THREE.Vector3(0,1,0), 0.01);
+		//camera.applyMatrix(rot);
 		
 		// Update the animation, or make a new one if it's complete
-		if(Anim.complete){
-			Anim = getNewRandomAnimation(rubiks, 1000);
+		if(Anim == null || Anim.complete){
+			Anim = null;
+			//Anim = getNewRandomAnimation(rubiks, 1000);
+			//Anim = rightFace(rubiks, duration, false);
+			if (randomNum > 0) {
+				Anim = getNewRandomAnimation(rubiks, duration);
+				randomNum--;
+			} else {
+				//Anim = getNewAnimation(rubiks, duration, false, 0, -1);
+			}
 		}
 		else{
 			Anim.update();
@@ -375,11 +418,123 @@ Animation = function(duration, interpolatorActor){
 	 * call any other finalization logic (e.g., position snapping).
 	 */
 }
-	
-function getNewRandomAnimation(rubiks, duration){
-	// Randomly select a 9-set of cubes
+
+function rightFace(rubiks, duration, prime) {
+	return getNewAnimation(rubiks, duration, prime, 0, 1);
+}
+
+function backFace(rubiks, duration, prime) {
+	return getNewAnimation(rubiks, duration, !prime, 2, -1);
+}
+
+function handleKeyPress(rubiks, duration, shift, keyCode) {
+	if (!shift) {
+		keyCode = keyCode -32;
+	}
+	console.log("Shift? " + shift + " key? " + keyCode);
+	switch(keyCode) {
+		case 87:
+			// w
+			// Camera UP
+			break;
+		case 65:
+			// a
+			// Camera LEFT
+			break;
+		case 83:
+			// s
+			// Camera DOWN
+			break;
+		case 68:
+			// d
+			// Camera RIGHT
+			break;
+		case 81:
+			// q
+			break;
+		case 69:
+			// e
+			break;
+		case 82:
+			// r
+			break;
+		case 84:
+			// t
+			break;
+		case 89:
+			// y
+			// TopFace rot0
+			return getNewAnimation(rubiks, duration, shift, 1, 1);
+			break;
+		case 85:
+			// u
+			// TopFace rot1
+			return getNewAnimation(rubiks, duration, shift, 1, 0);
+			break;
+		case 73:
+			// i
+			// TopFace rot2
+			return getNewAnimation(rubiks, duration, shift, 1, -1);
+			break;
+		case 79:
+			// o
+			break;
+		case 70:
+			// f
+			break;
+		case 71:
+			// g
+			break;
+		case 72:
+			// h
+			// LeftFace rot0
+			return getNewAnimation(rubiks, duration, shift, 0, -1);
+			break;
+		case 74:
+			// j
+			// LeftFace rot1
+			return getNewAnimation(rubiks, duration, shift, 0, 0);
+			break;
+		case 75:
+			// k
+			// Rotate rightFace
+			return getNewAnimation(rubiks, duration, shift, 0, 1);
+			break;
+		case 76:
+			// l
+			break;
+		case 86:
+			// v
+			break;
+		case 66:
+			// b
+			break;
+		case 78:
+			// n
+			//
+			return getNewAnimation(rubiks, duration, shift, 2, -1);
+			break;
+		case 77:
+			// m
+			return getNewAnimation(rubiks, duration, shift, 2, 0);
+			break;
+		case 60:
+		case 12:
+			// ,
+			return getNewAnimation(rubiks, duration, shift, 2, 1);
+			break;
+	}
+}
+
+function getNewRandomAnimation(rubiks, duration) {
 	dim = Math.floor(Math.random()*3); // Choose a dimension to lock
 	val = Math.floor(Math.random()*3) - 1; // Choose a value to lock it to from (-1, 0, 1)
+	cw = Math.random() > .5;
+	return getNewAnimation(rubiks, duration, cw, dim, val);
+}
+
+function getNewAnimation(rubiks, duration, cw, dim, val){
+	// Randomly select a 9-set of cubes
 	args = [null, null, null]; // Assume all dimensions are free
 	args[dim] = val; // Lock one dimension to the chosen value
 	subset = rubiks.subSet(args[0], args[1], args[2]); // Request the subset
@@ -403,6 +558,8 @@ function getNewRandomAnimation(rubiks, duration){
 		var crot = new THREE.Matrix4(); 
 		// We want to scale a rotation of 90 degrees (pi/2 rads) around an arbitrary axis over the duration
 		var progScale = (prog >= 1 ? 1 : prog);
+		if (!cw)
+			progScale = -progScale;
 		//var progScale = (prog >= 1 ? 1 : Math.pow(prog, 6));
 		crot.rotateByAxis(new THREE.Vector3(args[0], args[1], args[2]), progScale * (Math.PI / 2));
 		// Apply transform to all in set
