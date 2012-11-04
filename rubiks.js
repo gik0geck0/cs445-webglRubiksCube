@@ -75,19 +75,48 @@ function Init(){
 			
 			var rotX = 0;
 			var rotY = 0;
+			// Find what 'direction' we are rotating in, if any
 			if(event.layerX-prevX > 0) {
-				rotX = 1;
-			} else if(event.layerX-prevX < -0) {
 				rotX = -1;
+			} else if(event.layerX-prevX < -0) {
+				rotX = 1;
 			}
 			if(event.layerY-prevY > 0) {
-				rotY = 1;
-			} else if(event.layerY-prevY < -0) {
 				rotY = -1;
+			} else if(event.layerY-prevY < -0) {
+				rotY = 1;
 			}
 			var rot = new THREE.Matrix4();
-			rot.rotateByAxis(new THREE.Vector3(-rotY,-rotX,rotY), 0.03);
-			camera.applyMatrix(rot);
+			if(rotX != 0 || rotY != 0){
+				// We can always safely rotate by X around the y axis
+				if(rotX != 0){
+					rot.rotateByAxis(new THREE.Vector3(0,rotX,0), 0.03);
+				}
+				// The y-rotation is actually relative to the camera's view, so we
+				// have to do some validation
+				if(rotY != 0 && camera.position.y ){
+					// Calculate the camera's look direction
+					var camLook = new THREE.Vector3(0,0,0);
+					camLook.sub(new THREE.Vector3(0,0,0), camera.position);
+					// Calculate the y-axis
+					var yAxis = new THREE.Vector3(0,1,0);
+					// Calculate the axis perpendicular to the look direction and y-axis,
+					// which will be a 'left-right' axis relative to the viewport
+					var rotYAxis = new THREE.Vector3(0,0,0);
+					rotYAxis.cross(camLook, yAxis);
+					// Assume we aren't allowed to rotate
+					var rotAmount = 0;
+					// Prevent rotation 'upwards' beyond a certain height
+					// Prevent rotation 'downwards' beyond a negative height
+					if( (rotY == -1 && camera.position.y < 4.99)  ||
+					    (rotY == 1 && camera.position.y > -4.99) ){
+						rotAmount = 0.03 * rotY;
+					}
+					// Might rotate by 0, which is safe
+					rot.rotateByAxis(rotYAxis, rotAmount);
+				}
+				camera.applyMatrix(rot);
+			}
 //test comment
 			/*console.log("Active motion at" + event.layerX + " " + event.layerY + 
 				"\nprevX: " + prevX + " prevY: " + prevY +
