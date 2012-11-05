@@ -4,7 +4,7 @@ function Init(){
 	http://www.aerotwist.com/tutorials/getting-started-with-three-js/
 	*/
 	
-	var duration = 100;
+	var duration = 50;
 	var Anim = null;
 	var rubiks = null;
 	var isRandomizing = false;
@@ -17,7 +17,7 @@ function Init(){
 		randomNum = $('#numRand').val();
 	});
 	// Set viewport size
-	var WIDTH = 1000;
+	var WIDTH = 700;
 	var HEIGHT = 480;
 	
 	// Set camera attributes
@@ -31,8 +31,8 @@ function Init(){
 	// Create a Renderer, Camera, and Scene
 	// Note the calls into the THREE library for these objects
 	var renderer = new THREE.WebGLRenderer({antialias: true});
-	//var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
-	var camera = new THREE.OrthographicCamera(WIDTH / - 2, WIDTH / 2, HEIGHT / 2, HEIGHT / - 2, VIEW_ANGLE, ASPECT, NEAR, FAR);
+	var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+	//var camera = new THREE.OrthographicCamera(WIDTH / - 200, WIDTH / 200, HEIGHT / 200, HEIGHT / - 200, VIEW_ANGLE, ASPECT, NEAR, FAR);
 	var scene = new THREE.Scene();
 	// A renderer is the interface to the OpenGL drivers; it handles the brunt of rendering
 	// A camera defines where in space the viewport looks. It starts
@@ -438,6 +438,9 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 		keyCode = keyCode -32;
 	}
 	console.log("Shift? " + shift + " key? " + keyCode);
+	var cx = camera.position.x;
+	var cy = camera.position.y;
+	var cz = camera.position.z;
 	switch(keyCode) {
 		case 87:
 			// w
@@ -457,11 +460,13 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 			break;
 		case 81:
 			// q
-			return getCameraRotationAnimation(camera, 500, 1);
+			var dir = (shift ? 1 : -1);
+			return getCameraRotationAnimation(camera, duration*5, dir);
 			break;
 		case 69:
 			// e
-			return getCameraRotationAnimation(camera, 500, -1);
+			var dir = (shift ? -1 : 1);
+			return getCameraRotationAnimation(camera, duration*5, dir);
 			break;
 		case 82:
 			// r
@@ -496,17 +501,62 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 		case 72:
 			// h
 			// LeftFace rot0
-			return getNewAnimation(rubiks, duration, shift, 0, -1);
+			shift = !shift;
+			if(cx > 0 && cz > 0){
+				var dim = 0;
+				var val = -1;}
+			if(cx < 0 && cz > 0){
+				var dim = 2;
+				var val = -1;}
+			if(cx > 0 && cz < 0){
+				var dim = 2;
+				var val = 1;
+				shift = !shift;}
+			if(cx < 0 && cz < 0){
+				var dim = 0;
+				var val = 1;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 		case 74:
 			// j
 			// LeftFace rot1
-			return getNewAnimation(rubiks, duration, shift, 0, 0);
+			shift = !shift;
+			if(cx > 0 && cz > 0){
+				var dim = 0;
+				var val = 0;}
+			if(cx < 0 && cz > 0){
+				var dim = 2;
+				var val = 0;}
+			if(cx > 0 && cz < 0){
+				var dim = 2;
+				var val = 0;
+				shift = !shift;}
+			if(cx < 0 && cz < 0){
+				var dim = 0;
+				var val = 0;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 		case 75:
 			// k
 			// Rotate rightFace
-			return getNewAnimation(rubiks, duration, shift, 0, 1);
+			shift = !shift;
+			if(cx > 0 && cz > 0){
+				var dim = 0;
+				var val = 1;}
+			if(cx < 0 && cz > 0){
+				var dim = 2;
+				var val = 1;}
+			if(cx > 0 && cz < 0){
+				var dim = 2;
+				var val = -1;
+				shift = !shift;}
+			if(cx < 0 && cz < 0){
+				var dim = 0;
+				var val = -1;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 		case 76:
 			// l
@@ -520,16 +570,59 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 		case 78:
 			// n
 			//
-			return getNewAnimation(rubiks, duration, shift, 2, -1);
+			
+			if(cx > 0 && cz > 0){
+				var dim = 2;
+				var val = 1;}
+			if(cx < 0 && cz > 0){
+				var dim = 0;
+				var val = -1;
+				shift = !shift;}
+			if(cx > 0 && cz < 0){
+				var dim = 0;
+				var val = 1;}
+			if(cx < 0 && cz < 0){
+				var dim = 2;
+				var val = -1;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 		case 77:
 			// m
-			return getNewAnimation(rubiks, duration, shift, 2, 0);
+			if(cx > 0 && cz > 0){
+				var dim = 2;
+				var val = 0;}
+			if(cx < 0 && cz > 0){
+				var dim = 0;
+				var val = 0;
+				shift = !shift;}
+			if(cx > 0 && cz < 0){
+				var dim = 0;
+				var val = 0;}
+			if(cx < 0 && cz < 0){
+				var dim = 2;
+				var val = 0;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 		case 60:
 		case 12:
 			// ,
-			return getNewAnimation(rubiks, duration, shift, 2, 1);
+			if(cx > 0 && cz > 0){
+				var dim = 2;
+				var val = -1;}
+			if(cx < 0 && cz > 0){
+				var dim = 0;
+				var val = 1;
+				shift = !shift;}
+			if(cx > 0 && cz < 0){
+				var dim = 0;
+				var val = -1;}
+			if(cx < 0 && cz < 0){
+				var dim = 2;
+				var val = 1;
+				shift = !shift;}
+			return getNewAnimation(rubiks, duration, shift, dim, val);
 			break;
 	}
 }
@@ -537,7 +630,6 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 function getCameraRotationAnimation(camera, duration, direction){
 	var transformState = new THREE.Matrix4(); // Allocate a variable to track the total animation state
 	// Generate a closure to act as the interpolator.
-			console.log(camera.position);
 	var stepper = function(prog){
 		prog = (prog > 1 ? 1 : prog); // Lock progress to [0, 1]
 		prog *= direction; // Adjust direction (and rate, but don't use it for that)

@@ -12,48 +12,50 @@
 		<h1>WebGL Rubik's Cube</h1>
 
 		<div id="attach"></div>
-		<button type="button" id="shuffle">Shuffle Cube</button>
-		Number of random moves to perform: <input type="number" name="numRandMove" min="1" value="20" id="numRand">
-		<table border="1" id="virtualKeyboard" >
-			<tr>
-				<td>Horizontal: </td>
-				<!--<td><button type="button" id="q" class="virtKey">Q</button></td>
-				<td><button type="button" id="w" class="virtKey">W</button></td>
-				<td><button type="button" id="e" class="virtKey">E</button></td>
-				<td><button type="button" id="r" class="virtKey">R</button></td>
-				<td><button type="button" id="t" class="virtKey">T</button></td> -->
-				<td><button type="button" id="y" class="virtKey">Y</button></td>
-				<td><button type="button" id="u" class="virtKey">U</button></td>
-				<td><button type="button" id="i" class="virtKey">I</button></td>
-				<!--<td><button type="button" id="o" class="virtKey">O</button></td>
-				<td><button type="button" id="p" class="virtKey">P</button></td> -->
-			</tr>
-			<tr>
-				<td>Vertical 1: </td>
-				<!--<td><button type="button" id="a" class="virtKey">A</button></td>
-				<td><button type="button" id="s" class="virtKey">S</button></td>
-				<td><button type="button" id="d" class="virtKey">D</button></td>
-				<td><button type="button" id="f" class="virtKey">F</button></td>
-				<td><button type="button" id="g" class="virtKey">G</button></td> -->
-				<td><button type="button" id="h" class="virtKey">H</button></td>
-				<td><button type="button" id="j" class="virtKey">J</button></td>
-				<td><button type="button" id="k" class="virtKey">K</button></td>
-				<!--<td><button type="button" id="l" class="virtKey">L</button></td>
-				<td><button type="button" id=";" class="virtKey">;</button></td>-->
-			</tr>
-			<tr>
-				<td>Vertical 2: </td>
-				<!--<td><button type="button" id="z" class="virtKey">Z</button></td>
-				<td><button type="button" id="x" class="virtKey">X</button></td>
-				<td><button type="button" id="c" class="virtKey">C</button></td>
-				<td><button type="button" id="v" class="virtKey">V</button></td>
-				<td><button type="button" id="b" class="virtKey">B</button></td>-->
-				<td><button type="button" id="n" class="virtKey">N</button></td>
-				<td><button type="button" id="m" class="virtKey">M</button></td>
-				<td><button type="button" id="," class="virtKey">,</button></td>
-				<!--<td><button type="button" id="." class="virtKey">.</button></td>
-				<td><button type="button" id="/" class="virtKey">/</button></td> -->
-			</tr>
+		<div id="controls">
+			<button type="button" id="shuffle">Shuffle Cube</button>
+			<p>Number of random moves to perform: <input type="number" name="numRandMove" min="1" value="20" id="numRand"></p>
+			<table border="1" id="virtualKeyboard" >
+				<tr>
+					<td>Horizontal: </td>
+					<!--<td><button type="button" id="q" class="virtKey">Q</button></td>
+					<td><button type="button" id="w" class="virtKey">W</button></td>
+					<td><button type="button" id="e" class="virtKey">E</button></td>
+					<td><button type="button" id="r" class="virtKey">R</button></td>
+					<td><button type="button" id="t" class="virtKey">T</button></td> -->
+					<td><button type="button" id="y" class="virtKey">Y</button></td>
+					<td><button type="button" id="u" class="virtKey">U</button></td>
+					<td><button type="button" id="i" class="virtKey">I</button></td>
+					<!--<td><button type="button" id="o" class="virtKey">O</button></td>
+					<td><button type="button" id="p" class="virtKey">P</button></td> -->
+				</tr>
+				<tr>
+					<td>Vertical 1: </td>
+					<!--<td><button type="button" id="a" class="virtKey">A</button></td>
+					<td><button type="button" id="s" class="virtKey">S</button></td>
+					<td><button type="button" id="d" class="virtKey">D</button></td>
+					<td><button type="button" id="f" class="virtKey">F</button></td>
+					<td><button type="button" id="g" class="virtKey">G</button></td> -->
+					<td><button type="button" id="h" class="virtKey">H</button></td>
+					<td><button type="button" id="j" class="virtKey">J</button></td>
+					<td><button type="button" id="k" class="virtKey">K</button></td>
+					<!--<td><button type="button" id="l" class="virtKey">L</button></td>
+					<td><button type="button" id=";" class="virtKey">;</button></td>-->
+				</tr>
+				<tr>
+					<td>Vertical 2: </td>
+					<!--<td><button type="button" id="z" class="virtKey">Z</button></td>
+					<td><button type="button" id="x" class="virtKey">X</button></td>
+					<td><button type="button" id="c" class="virtKey">C</button></td>
+					<td><button type="button" id="v" class="virtKey">V</button></td>
+					<td><button type="button" id="b" class="virtKey">B</button></td>-->
+					<td><button type="button" id="n" class="virtKey">N</button></td>
+					<td><button type="button" id="m" class="virtKey">M</button></td>
+					<td><button type="button" id="," class="virtKey">,</button></td>
+					<!--<td><button type="button" id="." class="virtKey">.</button></td>
+					<td><button type="button" id="/" class="virtKey">/</button></td> -->
+				</tr>
+			</div>
 		</table>
 	</body>
 </html>
