@@ -6,17 +6,24 @@ canvas {
 	cursor: -moz-grab;
 }
 h1 {
-text-shadow:    -2px   2px 2px black, 
-		 2px  -2px 2px black, 
-		-2px  -2px 2px black, 
-		 2px   2px 2px black,
-		10px  10px 3px red,
-		10px   0px 3px orange, 
-		10px -10px 3px yellow, 
-		-5px -10px 3px green, 
-		-5px   0px 3px blue, 
-		-5px  10px 3px purple;
-color: white;
+	text-shadow:    -2px   2px 2px black, 
+			 2px  -2px 2px black, 
+			-2px  -2px 2px black, 
+			 2px   2px 2px black,
+			10px  10px 3px red,
+			10px   0px 3px orange, 
+			10px -10px 3px yellow, 
+			-5px -10px 3px green, 
+			-5px   0px 3px blue, 
+			-5px  10px 3px purple;
+	color: white;
+	text-align: center;
+}
+div {
+	text-align: center;
+}
+table {
+	text-align: center;
 }
 body {
 	background-image: url('escheresque.png');
@@ -28,12 +35,10 @@ button {
 	-webkit-transition: background-color 1s;
 	-moz-transition: background-color 1s;
 	transition: background-color 1s;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
 }
 
 button:hover {
 	background-color: green;
-}
-#footnote{
-	position: absolute;
-	bottom: 0px;
 }

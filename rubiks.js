@@ -31,7 +31,8 @@ function Init(){
 	// Create a Renderer, Camera, and Scene
 	// Note the calls into the THREE library for these objects
 	var renderer = new THREE.WebGLRenderer({antialias: true});
-	var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+	//var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+	var camera = new THREE.OrthographicCamera(WIDTH / - 2, WIDTH / 2, HEIGHT / 2, HEIGHT / - 2, VIEW_ANGLE, ASPECT, NEAR, FAR);
 	var scene = new THREE.Scene();
 	// A renderer is the interface to the OpenGL drivers; it handles the brunt of rendering
 	// A camera defines where in space the viewport looks. It starts
@@ -155,13 +156,13 @@ function Init(){
 		function(evt) {
 			var keyCode = evt.which;
 			if (Anim == null) {
-				Anim = handleKeyPress(rubiks, duration, evt.shiftKey, keyCode);
+				Anim = handleKeyPress(rubiks, camera, duration, evt.shiftKey, keyCode);
 			}
 		}
 		, false);
 	$('.virtKey').each(function(index, element) {
 		$(element).click(function() {
-			Anim = handleKeyPress(rubiks, duration, false, element.id.charCodeAt(0));
+			Anim = handleKeyPress(rubiks, camera, duration, false, element.id.charCodeAt(0));
 			return false;
 		});
 	});
@@ -432,7 +433,7 @@ function backFace(rubiks, duration, prime) {
 	return getNewAnimation(rubiks, duration, !prime, 2, -1);
 }
 
-function handleKeyPress(rubiks, duration, shift, keyCode) {
+function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 	if (!shift) {
 		keyCode = keyCode -32;
 	}
@@ -456,9 +457,11 @@ function handleKeyPress(rubiks, duration, shift, keyCode) {
 			break;
 		case 81:
 			// q
+			return getCameraRotationAnimation(camera, 500, 1);
 			break;
 		case 69:
 			// e
+			return getCameraRotationAnimation(camera, 500, -1);
 			break;
 		case 82:
 			// r
@@ -529,6 +532,34 @@ function handleKeyPress(rubiks, duration, shift, keyCode) {
 			return getNewAnimation(rubiks, duration, shift, 2, 1);
 			break;
 	}
+}
+
+function getCameraRotationAnimation(camera, duration, direction){
+	var transformState = new THREE.Matrix4(); // Allocate a variable to track the total animation state
+	// Generate a closure to act as the interpolator.
+			console.log(camera.position);
+	var stepper = function(prog){
+		prog = (prog > 1 ? 1 : prog); // Lock progress to [0, 1]
+		prog *= direction; // Adjust direction (and rate, but don't use it for that)
+		// Get the inverse of the transformation matrix to undo the transform accumulated so far
+		var transformUndo = new THREE.Matrix4();
+		transformUndo.getInverse(transformState);
+		// Undo transform
+		camera.applyMatrix(transformUndo); 
+		// allocate a new temporary matrix
+		var crot = new THREE.Matrix4(); 
+		// We want to scale a rotation of 90 degrees (pi/2 rads) around the y axis over the duration
+		var progScale = (prog >= 1 ? 1 : prog);
+		crot.rotateByAxis(new THREE.Vector3(0, 1, 0), progScale * (Math.PI / 2));
+		// Save our current 'orientation'
+		var orient = Math.abs(camera.position.x) - Math.abs(camera.position.z);
+		// Apply transform to all in set
+		camera.applyMatrix(crot); 
+		// Save the latest transform
+		transformState = crot; 
+	}
+	var Anim = new Animation(duration, stepper);
+	return Anim;
 }
 
 function getNewRandomAnimation(rubiks, duration) {
