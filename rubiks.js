@@ -160,6 +160,12 @@ function Init(){
 			}
 		}
 		, false);
+	$('.virtKey').each(function(index, element) {
+		$(element).click(function() {
+			Anim = handleKeyPress(rubiks, duration, false, element.id.charCodeAt(0));
+			return false;
+		});
+	});
 
 	
 	// Construct Rubiks object
