@@ -17,7 +17,7 @@ function Init(){
 		randomNum = $('#numRand').val();
 	});
 	// Set viewport size
-	var WIDTH = 640;
+	var WIDTH = 1000;
 	var HEIGHT = 480;
 	
 	// Set camera attributes
@@ -98,7 +98,7 @@ function Init(){
 			if(rotX != 0 || rotY != 0){
 				// We can always safely rotate by X around the y axis
 				if(rotX != 0){
-					rot.rotateByAxis(new THREE.Vector3(0,rotX,0), 0.03);
+					rot.rotateByAxis(new THREE.Vector3(0,rotX,0), 0.08);
 				}
 				// The y-rotation is actually relative to the camera's view, so we
 				// have to do some validation
