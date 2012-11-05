@@ -1,13 +1,17 @@
-#attach {
-	cursor: all-scroll;
+#attach:active, #attach:focus {
+	cursor: move;
 }
 h1 {
-text-shadow: 10px 10px 3px red,
-			10px 0px 3px orange, 
-			10px -10px 3px yellow, 
-			-5px -10px 3px green, 
-			-5px 0px 3px blue, 
-			-5px 10px 3px purple;
+text-shadow:    -2px   2px 2px black, 
+		 2px  -2px 2px black, 
+		-2px  -2px 2px black, 
+		 2px   2px 2px black,
+		10px  10px 3px red,
+		10px   0px 3px orange, 
+		10px -10px 3px yellow, 
+		-5px -10px 3px green, 
+		-5px   0px 3px blue, 
+		-5px  10px 3px purple;
 color: white;
 }
 body {
