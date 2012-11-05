@@ -14,8 +14,7 @@ function Init(){
 	
 	var $shuffleButton = $('#shuffle');
 	$shuffleButton.click(function() {
-		console.log("Shuffle was clicked");
-		randomNum = 20;
+		randomNum = $('#numRand').val();
 	});
 	// Set viewport size
 	var WIDTH = 640;
