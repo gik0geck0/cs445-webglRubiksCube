@@ -18,7 +18,8 @@ function Init(){
 	});
 	// Set viewport size
 	var WIDTH = 700;
-	var HEIGHT = 480;
+	// Height of the window, less the title, less the controls, less a bit
+	var HEIGHT = $(window).height() - $("#controls").outerHeight(true) - $("#title").outerHeight(true) - 32;
 	
 	// Set camera attributes
 	var VIEW_ANGLE = 45; // Vertical FoV
@@ -38,6 +39,9 @@ function Init(){
 	// A camera defines where in space the viewport looks. It starts
 		// at the origin, looking along the positive(?) z-axis, oriented with (0, 1, 0) as 'up'
 	// A scene holds a set of meshes to be rendered, as well as any lighting elements
+	
+	// Set clear color for the renderer
+	//renderer.setClearColorHex(0xFFFFFF, 1);
 	
 	// Add camera to scene
 	scene.add(camera);	
@@ -470,9 +474,13 @@ function handleKeyPress(rubiks, camera, duration, shift, keyCode) {
 			break;
 		case 82:
 			// r
+			var $controls = $("#controls");
+			$controls.slideDown('slow');
 			break;
 		case 84:
 			// t
+			var $controls = $("#controls");
+			$controls.slideUp('slow');
 			break;
 		case 89:
 			// y

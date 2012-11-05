@@ -21,9 +21,11 @@ h1 {
 }
 div {
 	text-align: center;
+	margin: auto;
 }
 table {
 	margin: auto;
+	background-image: url('escheresque.png');
 }
 body {
 	background-image: url('escheresque.png');
@@ -44,6 +46,13 @@ button:hover {
 }
 #controls{
 	width: 700px;
-	margin-left: auto;
-	margin-right: auto;
+	margin: auto;
+	padding: 0.5em;
+	background-color: rgba(0,0,255,0.2);
+	/* Safari 5.1+, Chrome 10+ */
+	background: -webkit-radial-gradient(circle, rgba(0,0,255,0.2), rgba(0,0,255,0.0));  
+	/* Firefox 3.6+ */ 
+	background: -moz-radial-gradient(circle, rgba(0,0,255,0.2), rgba(0,0,255,0.0);  
+	/* IE 10 */ 
+	background: -ms-radial-gradient(circle, rgba(0,0,255,0.2), rgba(0,0,255,0.0);
 }
