@@ -1,5 +1,9 @@
-#attach:active, #attach:focus {
-	cursor: move;
+canvas:active {
+	cursor: all-scroll;
+}
+canvas {
+	cursor: -webkit-grab; 
+	cursor: -moz-grab;
 }
 h1 {
 text-shadow:    -2px   2px 2px black, 
@@ -28,4 +32,8 @@ button {
 
 button:hover {
 	background-color: green;
+}
+#footnote{
+	position: absolute;
+	bottom: 0px;
 }
